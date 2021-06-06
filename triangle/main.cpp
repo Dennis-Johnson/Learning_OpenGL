@@ -113,19 +113,50 @@ int main(int argc, const char * argv[]) {
     }
     
     
+    // Shader Program object to link the recently
+    // compiled vertex shader and fragment shader.
+    unsigned int shaderProgram;
+    shaderProgram = glCreateProgram();
+    
+    // Attach the compiled vertex & fragment shaders
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+    
+    // Check if linking failed
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if(!success){
+        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER_PROGRAM::Linking Failed\n" << infoLog << std::endl;
+    }
+    
+    // We no longer need the shader objects.
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+    
+    
+    // Configure vertex array object (VAO)
+    unsigned int VAO;
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+    
+    // Linking vertex attributes
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    
+    
     // Render loop
     while(!glfwWindowShouldClose(window)){
+        processKeypress(window);
         
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         
-        glBegin(GL_TRIANGLES);
-        glVertex2f( -0.7, -0.5 );
-        glVertex2f( 0.7, -0.5 );
-        glVertex2f( 0, 0.7 );
-        glEnd();
+        // Draw!
+        glUseProgram(shaderProgram);
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
         
-        processKeypress(window);
         glfwPollEvents();
         glfwSwapBuffers(window);
     }
