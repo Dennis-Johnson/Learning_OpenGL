@@ -3,7 +3,7 @@
 //  Triangle
 //
 //  Created by Dennis on 26/05/21.
-//  Draw a triangle
+//  Render a triangle
 
 #include <iostream>
 #define GLEW_STATIC
@@ -12,11 +12,20 @@
 
 const GLint WIDTH = 600, HEIGHT = 480;
 
+// Vertex Shader: No extra processing on input vector for now
 const char* vertexShaderSource = "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
     "void main()\n"
     "{\n"
     "gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "}\0";
+
+// Fragment Shader: Color is an RGBA value for orange
+const char* fragmentShaderSource = "#version 330 core\n"
+    "out vec4 Fragment_Color;\n"
+    "void main()\n"
+    "{\n"
+    "Fragment_Color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
     "}\0";
 
 void processKeypress(GLFWwindow *window){
@@ -87,6 +96,20 @@ int main(int argc, const char * argv[]) {
     if(!success){
         glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::VERTEX::Compilation Failed\n" << infoLog << std::endl;
+    }
+    
+    
+    // Fragment Shader shenanigans, similar to vertex shader stuff above.
+    unsigned int fragmentShader;
+    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+    
+    // Check for compilation errors
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    if(!success){
+        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::FRAGMENT::Compilation Failed\n" << infoLog << std::endl;
     }
     
     
